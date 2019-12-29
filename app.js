@@ -14,13 +14,15 @@ new Vue({
       this.gameIsRunning = !this.gameIsRunning;
       this.playerHealth = 100;
       this.monsterHealth = 100;
+      this.turns = []
     },
     
     attack() {
-      this.playerAttack();
+      let damage = this.calculateDamage(3, 10);
+      this.monsterHealth -= damage;
       this.turns.unshift({
         isPlayer: true,
-        
+        text: `You have dealt ${damage} `
       });
       if(this.checkWin()) {
         return;
@@ -28,8 +30,12 @@ new Vue({
       this.monsterAttack();
     },
     specialAttack() {
-      this.monsterHealth -= this.calculateDamage(10, 20);
-      this.turns.unshift(this.monsterAttack);
+      let damage = this.calculateDamage(10, 20);
+      this.monsterHealth -= damage
+      this.turns.unshift({
+        isPlayer: true,
+        text: `Critical hit:  ${damage} `
+      });
       if(this.checkWin()) {
         return;
       }
@@ -38,7 +44,12 @@ new Vue({
     },
     heal() {
       if(this.playerHealth <= 90) {
-        this.playerHealth += this.calculateDamage(10, 15);
+        let healing = this.calculateDamage(10, 15);
+        this.playerHealth += healing
+        this.turns.unshift({
+          isPlayer: true,
+          text: `Player heals ${healing} hit points.`
+        });
       } else {
         this.playerHealth = 100;
       }
@@ -46,13 +57,21 @@ new Vue({
     },
     giveUp() {
       this.startGame();
+      
     },
     monsterAttack() {
-      this.playerHealth -= this.calculateDamage(5, 13); 
+      let damage =  this.calculateDamage(5, 13); 
+      this.playerHealth -= damage
+      this.turns.unshift({
+        isPlayer: false,
+        text: `The monster has dealt ${damage} `
+      });
       this.checkWin();
     },
     playerAttack() {
-      this.monsterHealth -= this.calculateDamage(3, 10);
+      let damage = this.calculateDamage(3, 10);
+      this.monsterHealth -= damage
+    
     },
     calculateDamage(min, max) {
       return Math.max(Math.floor(Math.random() * max) + 1, min)
@@ -76,13 +95,18 @@ new Vue({
       return false;
     },
     pushTurns(attacker) {
-      return this.turns.unshift(attacker)
+      this.turns.unshift({
+          isPLayer: true,
+          
+      })
     } 
   },
   computed: {
     playerDamageInflicted() {
       return `You have been dealt ${this.attack}`
     },
-    monsterDamageInflicted() {}
+    monsterDamageInflicted() {
+      return `You have dealt ${this.attack}`
+    }
   }
 });
